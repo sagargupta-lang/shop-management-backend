@@ -26,6 +26,8 @@ app.use("/api/test", require("./routes/test.route"));
 app.use("/api/auth", require("./routes/auth.route"));
 app.use("/api/protected", require("./routes/protected.route"));
 app.use("/api/employee", require("./routes/employee.route"));
+app.use("/api/attendance", require("./routes/attendance.route"));
+
 
 /* Root route */
 app.get("/", (req, res) => {
