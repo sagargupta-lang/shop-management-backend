@@ -22,6 +22,7 @@ app.use(
 );
 app.use("/api/salary", require("./routes/salary.route"));
 app.use("/api/stock", require("./routes/stock.route"));
+app.use("/api/upload", require("./routes/upload.route"));
 
 /* Root route */
 app.get("/", (req, res) => {
