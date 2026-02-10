@@ -16,24 +16,26 @@ const uploadCompanyLogo = async (req, res) => {
       });
     }
 
-    if (!req.file) {
+    const { logoBase64 } = req.body;
+
+    if (!logoBase64) {
       return res.status(400).json({
         success: false,
-        message: "No logo uploaded",
+        message: "Logo Base64 string is required",
       });
     }
 
-    if (req.file.size > 150 * 1024) {
+    // Size check (~150 KB)
+    const sizeInBytes = Buffer.byteLength(logoBase64, "base64");
+    if (sizeInBytes > 150 * 1024) {
       return res.status(400).json({
         success: false,
-        message: "Logo size must be less than 150KB",
+        message: "Logo must be less than 150KB",
       });
     }
-
-    const base64Image = req.file.buffer.toString("base64");
 
     await Owner.findByIdAndUpdate(req.user.id, {
-      logoUrl: base64Image, // ✅ matches your model
+      logoUrl: logoBase64,
     });
 
     return res.status(200).json({

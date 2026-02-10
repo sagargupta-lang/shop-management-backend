@@ -12,7 +12,6 @@ const {
 router.post(
   "/company-logo",
   protect,
-  upload.single("logo"),
   uploadCompanyLogo
 );
 
