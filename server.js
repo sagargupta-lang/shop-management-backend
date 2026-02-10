@@ -17,6 +17,7 @@ connectDB();
 
 /* Routes */
 app.use("/api/test", require("./routes/test.route"));
+app.use("/api/auth", require("./routes/auth.route"));
 
 /* Root route */
 app.get("/", (req, res) => {
