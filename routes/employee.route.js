@@ -6,7 +6,10 @@ const {
   authorizeRoles,
 } = require("../middlewares/auth.middleware");
 
-const { addEmployee } = require("../controllers/auth.controller");
+const {
+   addEmployee,
+   employeeLogin,
+} = require("../controllers/auth.controller");
 
 /* Add Employee – OWNER only */
 router.post(
@@ -15,5 +18,8 @@ router.post(
   authorizeRoles("OWNER"),
   addEmployee
 );
+
+/* Employee Login */
+router.post("/login", employeeLogin);
 
 module.exports = router;
