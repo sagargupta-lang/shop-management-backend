@@ -31,6 +31,7 @@ app.use(
   "/api/attendance-report",
   require("./routes/attendanceReport.route")
 );
+app.use("/api/salary", require("./routes/salary.route"));
 
 
 /* Root route */
