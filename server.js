@@ -4,22 +4,11 @@ const cors = require("cors");
 
 dotenv.config();
 
-const connectDB = require("./config/db");
-
 const app = express();
 
 /* Middleware */
 app.use(cors());
 app.use(express.json());
-
-/* Connect DB ONCE (serverless-safe) */
-(async () => {
-  try {
-    await connectDB();
-  } catch (err) {
-    console.error("❌ DB connection failed on startup");
-  }
-})();
 
 /* Routes */
 app.use("/api/test", require("./routes/test.route"));
@@ -32,7 +21,6 @@ app.use(
   require("./routes/attendanceReport.route")
 );
 app.use("/api/salary", require("./routes/salary.route"));
-
 
 /* Root route */
 app.get("/", (req, res) => {
