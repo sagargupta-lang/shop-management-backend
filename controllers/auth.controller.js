@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Owner = require("../models/Owner.model");
 const Company = require("../models/Company.model");
 const connectDB = require("../config/db");
@@ -116,4 +117,75 @@ const ownerSignup = async (req, res) => {
   }
 };
 
-module.exports = { ownerSignup };
+/* =========================
+   OWNER LOGIN
+========================= */
+const ownerLogin = async (req, res) => {
+  try {
+    // Ensure DB connection (serverless safe)
+    await connectDB();
+
+    const { email, password } = req.body;
+
+    /* Validation */
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    /* Find owner */
+    const owner = await Owner.findOne({ email });
+
+    if (!owner) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    /* Compare password */
+    const isMatch = await bcrypt.compare(password, owner.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    /* Generate JWT */
+    const token = jwt.sign(
+      {
+        id: owner._id,
+        role: owner.role,
+        company: owner.company,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      owner: {
+        id: owner._id,
+        name: owner.name,
+        email: owner.email,
+        phone: owner.phone,
+        role: owner.role,
+        company: owner.company,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during login",
+    });
+  }
+};
+
+module.exports = { ownerSignup, ownerLogin };
