@@ -1,27 +1,24 @@
 const mongoose = require("mongoose");
 
-let cachedConnection = null;
+let isConnected = false; // track connection state
 
 const connectDB = async () => {
-  if (cachedConnection) {
-    return cachedConnection;
+  if (isConnected) {
+    return;
   }
 
   try {
-    mongoose.set("bufferCommands", false); // 🔥 disable buffering
-
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 10000,
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+      bufferCommands: false,
     });
 
-    cachedConnection = conn;
+    isConnected = db.connections[0].readyState === 1;
+
     console.log("✅ MongoDB connected");
-    return conn;
   } catch (error) {
     console.error("❌ MongoDB connection failed");
     console.error(error.message);
-    throw error; // 👈 allow API to fail fast
+    throw error;
   }
 };
 
