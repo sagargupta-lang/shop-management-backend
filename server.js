@@ -25,6 +25,7 @@ app.use(express.json());
 app.use("/api/test", require("./routes/test.route"));
 app.use("/api/auth", require("./routes/auth.route"));
 app.use("/api/protected", require("./routes/protected.route"));
+app.use("/api/employee", require("./routes/employee.route"));
 
 /* Root route */
 app.get("/", (req, res) => {

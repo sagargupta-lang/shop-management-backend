@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Owner = require("../models/Owner.model");
 const Company = require("../models/Company.model");
+const Employee = require("../models/Employee.model");
 const connectDB = require("../config/db");
 
 /* =========================
@@ -188,4 +189,76 @@ const ownerLogin = async (req, res) => {
   }
 };
 
-module.exports = { ownerSignup, ownerLogin };
+/* =========================
+   ADD EMPLOYEE (OWNER ONLY)
+========================= */
+const addEmployee = async (req, res) => {
+  try {
+    // Ensure DB connection
+    await connectDB();
+
+    const {
+      name,
+      phone,
+      salary,
+      shift,
+      title,
+    } = req.body;
+
+    // Basic validation
+    if (!name || !phone || !salary) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, phone, and salary are required",
+      });
+    }
+
+    // Prevent duplicate phone
+    const existingEmployee = await Employee.findOne({ phone });
+    if (existingEmployee) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee with this phone already exists",
+      });
+    }
+
+    // Generate Employee ID (simple & unique)
+    const employeeId = "EMP" + Date.now();
+
+    const employee = await Employee.create({
+      employeeId,
+      name,
+      phone,
+      salary,
+      shift: shift || "DAY",
+      title: title || "EMPLOYEE",
+      company: req.user.company, // from JWT
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Employee added successfully",
+      employee: {
+        id: employee._id,
+        employeeId: employee.employeeId,
+        name: employee.name,
+        phone: employee.phone,
+        salary: employee.salary,
+        title: employee.title,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while adding employee",
+    });
+  }
+};
+
+
+module.exports = {
+  ownerSignup,
+  ownerLogin,
+  addEmployee,
+};
