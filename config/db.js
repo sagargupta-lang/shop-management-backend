@@ -1,15 +1,24 @@
 const mongoose = require("mongoose");
 
+let isConnected = false; // 👈 important for serverless
+
 const connectDB = async () => {
+  if (isConnected) {
+    return;
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      family: 4, // 👈 forces IPv4, fixes Windows + ISP issue
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
     });
-    console.log("✅ MongoDB connected");
+
+    isConnected = true;
+    console.log("✅ MongoDB connected:", conn.connection.host);
   } catch (error) {
     console.error("❌ MongoDB connection failed");
     console.error(error.message);
-    process.exit(1);
+    // ❌ DO NOT exit process on Vercel
   }
 };
 
