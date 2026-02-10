@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Owner = require("../models/Owner.model");
 const Company = require("../models/Company.model");
+const connectDB = require("../config/db");
 
 /* =========================
    PASSWORD VALIDATION
@@ -18,6 +19,9 @@ const isValidPassword = (password) => {
 ========================= */
 const ownerSignup = async (req, res) => {
   try {
+    // ✅ ENSURE MongoDB is connected before any query
+    await connectDB();
+
     const {
       name,
       email,
