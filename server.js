@@ -12,8 +12,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* Connect DB */
-connectDB();
+/* Connect DB ONCE (serverless-safe) */
+(async () => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error("❌ DB connection failed on startup");
+  }
+})();
 
 /* Routes */
 app.use("/api/test", require("./routes/test.route"));
