@@ -1,15 +1,24 @@
 const express = require("express");
 const router = express.Router();
 
-const { protect } = require("../middlewares/auth.middleware");
+const {
+  protect,
+  authorizeRoles,
+} = require("../middlewares/auth.middleware");
+
 
 /* Protected test route */
-router.get("/owner", protect, (req, res) => {
-  res.json({
-    success: true,
-    message: "You are authorized as OWNER",
-    user: req.user,
-  });
-});
+router.get(
+  "/owner",
+  protect,
+  authorizeRoles("OWNER"),
+  (req, res) => {
+    res.json({
+      success: true,
+      message: "OWNER access granted",
+      user: req.user,
+    });
+  }
+);
 
 module.exports = router;
