@@ -54,59 +54,93 @@ const uploadCompanyLogo = async (req, res) => {
 /* =========================
    EMPLOYEE – UPLOAD PHOTOS
 ========================= */
-const uploadEmployeePhotos = async (req, res) => {
+/* EMPLOYEE – PROFILE PHOTO (Base64) */
+const uploadEmployeeProfile = async (req, res) => {
   try {
     await connectDB();
 
     if (req.user.role !== "EMPLOYEE") {
       return res.status(403).json({
         success: false,
-        message: "Only employees can upload photos",
+        message: "Only employees can upload profile photo",
       });
     }
 
-    const updates = {};
+    const { image } = req.body;
 
-    if (req.files?.profilePhoto) {
-      if (req.files.profilePhoto[0].size > 150 * 1024) {
-        return res.status(400).json({
-          success: false,
-          message: "Profile photo must be under 150KB",
-        });
-      }
-
-      updates.profilePhotoUrl =
-        req.files.profilePhoto[0].buffer.toString("base64"); // ✅
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        message: "Profile photo is required",
+      });
     }
 
-    if (req.files?.aadharPhoto) {
-      if (req.files.aadharPhoto[0].size > 250 * 1024) {
-        return res.status(400).json({
-          success: false,
-          message: "Aadhar photo must be under 250KB",
-        });
-      }
-
-      updates.aadharPhotoUrl =
-        req.files.aadharPhoto[0].buffer.toString("base64"); // ✅
+    const sizeInBytes = Buffer.byteLength(image, "base64");
+    if (sizeInBytes > 150 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: "Profile photo must be under 150KB",
+      });
     }
 
-    await Employee.findByIdAndUpdate(req.user.id, updates);
-
-    return res.status(200).json({
-      success: true,
-      message: "Photos uploaded successfully",
+    await Employee.findByIdAndUpdate(req.user.id, {
+      profilePhotoUrl: image,
     });
-  } catch (error) {
-    console.error(error);
+
+    return res.json({
+      success: true,
+      message: "Profile photo uploaded successfully",
+    });
+  } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Server error while uploading photos",
+      message: "Server error while uploading profile photo",
     });
   }
 };
 
+/* EMPLOYEE – AADHAR PHOTO (Base64) */
+const uploadEmployeeAadhar = async (req, res) => {
+  try {
+    await connectDB();
+
+    const { image } = req.body;
+
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        message: "Aadhar photo is required",
+      });
+    }
+
+    const sizeInBytes = Buffer.byteLength(image, "base64");
+    if (sizeInBytes > 250 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: "Aadhar photo must be under 250KB",
+      });
+    }
+
+    await Employee.findByIdAndUpdate(req.user.id, {
+      aadharPhotoUrl: image,
+    });
+
+    return res.json({
+      success: true,
+      message: "Aadhar photo uploaded successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error while uploading Aadhar photo",
+    });
+  }
+};
+
+
 module.exports = {
   uploadCompanyLogo,
-  uploadEmployeePhotos,
+  uploadEmployeeProfile,
+  uploadEmployeeAadhar,
 };
+

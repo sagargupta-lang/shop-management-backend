@@ -1,29 +1,20 @@
 const express = require("express");
 const router = express.Router();
 
-const upload = require("../middlewares/upload.middleware");
 const { protect } = require("../middlewares/auth.middleware");
 const {
   uploadCompanyLogo,
-  uploadEmployeePhotos,
+  uploadEmployeeProfile,
+  uploadEmployeeAadhar,
 } = require("../controllers/upload.controller");
 
-/* Owner – Company logo */
-router.post(
-  "/company-logo",
-  protect,
-  uploadCompanyLogo
-);
+/* Owner – Company logo (Base64) */
+router.post("/company-logo", protect, uploadCompanyLogo);
 
-/* Employee – Profile & Aadhar */
-router.post(
-  "/employee-photos",
-  protect,
-  upload.fields([
-    { name: "profilePhoto", maxCount: 1 },
-    { name: "aadharPhoto", maxCount: 1 },
-  ]),
-  uploadEmployeePhotos
-);
+/* Employee – Profile photo (Base64) */
+router.post("/employee/profile", protect, uploadEmployeeProfile);
+
+/* Employee – Aadhar photo (Base64) */
+router.post("/employee/aadhar", protect, uploadEmployeeAadhar);
 
 module.exports = router;
